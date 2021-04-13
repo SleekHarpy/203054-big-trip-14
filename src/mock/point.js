@@ -1,47 +1,27 @@
 import dayjs from 'dayjs';
-import { getRandomInteger } from '../utils';
+import { getRandomIndex, getRandomInteger } from '../utils';
+import { offersArr } from './offersArr';
 
-const utc = require('dayjs/plugin/utc');
-dayjs.extend(utc);
-
-const textLorem = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras aliquet varius magna, non porta ligula feugiat eget. Fusce tristique felis at fermentum pharetra. Aliquam id orci ut lectus varius viverra. Nullam nunc ex, convallis sed finibus eget, sollicitudin eget ante. Phasellus eros mauris, condimentum sed nibh vitae, sodales efficitur ipsum. Sed blandit, eros vel aliquam faucibus, purus ex euismod diam, eu luctus nunc ante ut dui. Sed sed nisi sed augue convallis suscipit in sed felis. Aliquam erat volutpat. Nunc fermentum tortor ac porta dapibus. In rutrum ac purus sit amet tempus.';
-const types = ['Taxi', 'Bus', 'Train', 'Ship', 'Transport', 'Drive', 'Flight', 'Check-in', 'Sightseeing', 'Restaurant'];
+const DAY_GAP = 2;
+const HOURS_GAP = getRandomInteger(0, 24);
+const MINUTES_GAP = getRandomInteger(0, 60);
+const TEXT_LOREM = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras aliquet varius magna, non porta ligula feugiat eget. Fusce tristique felis at fermentum pharetra. Aliquam id orci ut lectus varius viverra. Nullam nunc ex, convallis sed finibus eget, sollicitudin eget ante. Phasellus eros mauris, condimentum sed nibh vitae, sodales efficitur ipsum. Sed blandit, eros vel aliquam faucibus, purus ex euismod diam, eu luctus nunc ante ut dui. Sed sed nisi sed augue convallis suscipit in sed felis. Aliquam erat volutpat. Nunc fermentum tortor ac porta dapibus. In rutrum ac purus sit amet tempus.';
+export const TYPES = ['Taxi', 'Bus', 'Train', 'Ship', 'Transport', 'Drive', 'Flight', 'Check-in', 'Sightseeing', 'Restaurant'];
+export const CITIES = ['Moscow', 'Saint-Petersburg', 'New-York', 'San-Francisco', 'Tokyo', 'Sydney', 'Hong Kong', 'Bangkok', 'London', 'Paris', 'Istanbul'];
 
 const generateTypePoint = () => {
-  const randomIndex = getRandomInteger(0, types.length - 1);
-
-  return types[randomIndex];
-};
-
-const generateCity = () => {
-  const cities = ['Moscow, Saint-Petersburg', 'New-York', 'San-Francisco', 'Tokyo', 'Sydney'];
-  const randomIndex = getRandomInteger(0, cities.length - 1);
-
-  return cities[randomIndex];
+  return TYPES[getRandomIndex(TYPES)];
 };
 
 const generateDescription = () => {
-  const count = textLorem.replace(/([.?!])\s*(?=[A-Z])/g, '$1|').split('|');
-  const randomIndex = getRandomInteger(0, count.length - 1);
+  const sentences = TEXT_LOREM.replace(/([.?!])\s*(?=[A-Z])/g, '$1|').split('|');
+  const randomIndex = getRandomInteger(0, sentences.length - 1);
 
-  return count.slice(0, randomIndex).join(' ');
+  return sentences.slice(0, randomIndex).join(' ');
 };
 
 const generateDate = () => {
-  const maxDaysGap = 3;
-  const daysGap = getRandomInteger(-maxDaysGap, maxDaysGap);
-
-  return dayjs().utc().add(daysGap, 'day').add(daysGap, 'hour').add(daysGap, 'minute').format();
-};
-
-const generateOffersArr = () => {
-  const arr = [];
-
-  for (let i = 0; i < getRandomInteger(0, 7); i++) {
-    arr.push({ title: textLorem.slice(0, getRandomInteger(5, 25)), price: getRandomInteger(0, 800) });
-  }
-
-  return arr;
+  return dayjs().add(getRandomInteger(-DAY_GAP, DAY_GAP), 'day').add(HOURS_GAP, 'hour').add(MINUTES_GAP, 'minute').format('YYYY-MM-DDTHH:mm');
 };
 
 const generatePictures = () => {
@@ -50,7 +30,7 @@ const generatePictures = () => {
     pictures.push(
       {
         src: `http://picsum.photos/248/152?r=${getRandomInteger(1, 1000)}`,
-        description: textLorem.slice(0, getRandomInteger(5, 25)),
+        description: TEXT_LOREM.slice(0, getRandomInteger(5, 25)),
       },
     );
   }
@@ -58,29 +38,27 @@ const generatePictures = () => {
   return pictures;
 };
 
-const generateDestination = () => {
+const generateDestination = (cityI) => {
   return {
     description: generateDescription(),
-    name: generateCity(),
+    name: CITIES[cityI],
     photos: generatePictures(),
   };
 };
 
-export const generatePoint = () => {
+export const generatePoint = (cityI) => {
+  const randomType = generateTypePoint();
+  const typeOffers = offersArr.find((item) => item.type === randomType).offers;
+  const randomDateFrom = generateDate();
+  const randomDateTo = dayjs(randomDateFrom).add(getRandomInteger(0, HOURS_GAP), 'hour').add(getRandomInteger(0, MINUTES_GAP), 'minute');
+
   return {
-    type: generateTypePoint(),
-    city: generateCity(),
-    destination: generateDestination(),
-    dateFrom: generateDate(),
-    dateTo: '2021-04-16T06:23:52Z',
+    type: randomType,
+    destination: generateDestination(cityI),
+    dateFrom: randomDateFrom,
+    dateTo: randomDateTo,
     isFavorite: Boolean(getRandomInteger(0, 1)),
     basePrice: getRandomInteger(1, 500),
-  };
-};
-
-export const generateOffer = () => {
-  return {
-    type: generateTypePoint(),
-    offers: generateOffersArr(),
+    offers: typeOffers.slice(0, getRandomIndex(typeOffers)),
   };
 };

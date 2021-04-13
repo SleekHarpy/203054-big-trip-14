@@ -1,3 +1,10 @@
+import dayjs from 'dayjs';
+import duration from 'dayjs/plugin/duration';
+dayjs.extend(duration);
+
+const MILLISECONDS_IN_DAY = 86400000;
+const MILLISECONDS_IN_HOUR = 3600000;
+
 export const getRandomInteger = (a = 0, b = 1) => {
   const lower = Math.ceil(Math.min(a, b));
   const upper = Math.floor(Math.max(a, b));
@@ -6,10 +13,9 @@ export const getRandomInteger = (a = 0, b = 1) => {
 };
 
 export const totalSumOffers = (offers) => {
+
   if (offers.length !== 0 ) {
-    return offers.map((item) => {
-      return item.price;
-    }).reduce((total, amount) => total + amount);
+    return offers.reduce((total, amount) => total + amount.price, 0);
   }
 
   return 0;
@@ -17,43 +23,25 @@ export const totalSumOffers = (offers) => {
 
 export const sumPricePoint = (point) => {
   if (point.offers.length !== 0 ) {
-    return point.offers.map((item) => {
-      return item.price;
-    }).reduce((total, amount) => total + amount) + point.basePrice;
+    return point.offers.reduce((total, amount) => total + amount.price, 0) + point.basePrice;
   }
 
   return point.basePrice;
 };
 
-export const calcTimeDuration = (seconds) => {
-  let d = Math.floor(seconds / (3600*24));
-  let h = Math.floor(seconds % (3600*24) / 3600);
-  let m = Math.floor(seconds % 3600 / 60);
+export const calcTimeDuration = (timeFrom, timeTo) => {
+  const durationTime = dayjs.duration(timeTo.diff(timeFrom));
+  const durationTimeSec = durationTime.asMilliseconds();
 
-  const isDay = d > 0;
-  const isHour = h > 0;
-  const isMinute = m > 0;
+  if (durationTimeSec < MILLISECONDS_IN_HOUR) {
+    return durationTime.format('mm[M]');
+  } else if (durationTimeSec < MILLISECONDS_IN_DAY && durationTimeSec >= MILLISECONDS_IN_HOUR) {
+    return durationTime.format('HH[H] mm[M]');
+  } else {
+    return durationTime.format('DD[D] HH[H] mm[M]');
+  }
+};
 
-  if (d >= 0 && d < 10) {
-    d = `0${d}D`;
-  }
-  if (d >= 10) {
-    d = `${d}D`;
-  }
-
-  if (h >= 0 && h < 10) {
-    h = `0${h}H`;
-  }
-  if (h >= 10) {
-    h = `${h}H`;
-  }
-
-  if (m >= 0 && m < 10) {
-    m = `0${m}M`;
-  }
-  if (m >= 10) {
-    m = `${m}M`;
-  }
-
-  return `${isDay ? d : ''} ${isHour || isDay ? h : ''} ${isMinute || isDay || isHour ? m : ''}`;
+export const getRandomIndex = (arr) => {
+  return getRandomInteger(0, arr.length - 1);
 };

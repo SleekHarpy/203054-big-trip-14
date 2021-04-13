@@ -1,17 +1,13 @@
 import dayjs from 'dayjs';
 import { calcTimeDuration, sumPricePoint } from '../utils';
 
-const duration = require('dayjs/plugin/duration');
-dayjs.extend(duration);
-
 export const createPointElement = (point) => {
-  const {dateFrom, dateTo, type, city, isFavorite} = point;
+  const {dateFrom, dateTo, type, destination, isFavorite} = point;
   const date = dayjs(dateFrom).format('MMM D');
   const timeFrom = dayjs(dateFrom);
   const timeTo = dayjs(dateTo);
   const typeLowerCase = type.toLowerCase();
-  const timeDiff = timeTo.diff(timeFrom, 's');
-  const durationTemplate = calcTimeDuration(timeDiff);
+  const durationTemplate = calcTimeDuration(timeFrom, timeTo);
 
   const generateOffersElement = () => {
     return point.offers.map((item) => `
@@ -34,12 +30,12 @@ export const createPointElement = (point) => {
         <div class="event__type">
           <img class="event__type-icon" width="42" height="42" src="img/icons/${typeLowerCase}.png" alt="Event type icon">
         </div>
-        <h3 class="event__title">${type} ${city}</h3>
+        <h3 class="event__title">${type} ${destination.name}</h3>
         <div class="event__schedule">
           <p class="event__time">
-            <time class="event__start-time" datetime="2019-03-18T10:30">${timeFrom.format('HH:MM')}</time>
+            <time class="event__start-time" datetime="2019-03-18T10:30">${timeFrom.format('HH:mm')}</time>
             &mdash;
-            <time class="event__end-time" datetime="2019-03-18T11:00">${timeTo.format('HH:MM')}</time>
+            <time class="event__end-time" datetime="2019-03-18T11:00">${timeTo.format('HH:mm')}</time>
           </p>
           <p class="event__duration">${durationTemplate}</p>
         </div>

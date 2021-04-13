@@ -1,4 +1,4 @@
-const generateOffersElement = (offers) => {
+const generateOffersElement = (offers, checkedOffers) => {
   if (offers.length !== 0) {
     return `
       <section class="event__details">
@@ -8,7 +8,13 @@ const generateOffersElement = (offers) => {
           <div class="event__available-offers">
             ${offers.map((item) => `
               <div class="event__offer-selector">
-              <input class="event__offer-checkbox  visually-hidden" id="event-offer-luggage-${item.price}" type="checkbox" name="event-offer-luggage" checked>
+              <input
+                class="event__offer-checkbox  visually-hidden"
+                id="event-offer-luggage-${item.price}"
+                type="checkbox"
+                name="event-offer-luggage"
+                ${checkedOffers.find((itemChecked) => itemChecked === item) ? 'checked' : ''}
+              >
               <label class="event__offer-label" for="event-offer-luggage-${item.price}">
                 <span class="event__offer-title">${item.title}</span>
                 &plus;&euro;&nbsp;
