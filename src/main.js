@@ -1,16 +1,25 @@
 import { createSiteMenuTemplate } from './view/site-menu';
-import { createTripInfoElement } from './view/trip-info';
-import { createCostTripElement } from './view/cost-trip';
+// import { createTripInfoElement } from './view/trip-info';
+// import { createCostTripElement } from './view/cost-trip';
 import { createTripFiltersElement } from './view/trip-filters';
 import { createTripSortElement } from './view/trip-sort';
 import { createEventsListElement } from './view/events-list';
-import { createEditFormElement } from './view/edit-form';
+// import { createEditFormElement } from './view/edit-form';
 import { createAddPointElement } from './view/add-point';
 import { createPointElement } from './view/point';
+import { generatePoint } from './mock/point';
+import dayjs from 'dayjs';
+import { totalSumOffers } from './utils';
 
-const POINT_COUNT = 3;
+const POINT_COUNT = 6;
+const points = new Array(POINT_COUNT).fill().map((item, index) => generatePoint(index));
+const sortTypes = {
+  PRICE: 'price',
+  DAY: 'day',
+  DURATION: 'duration',
+};
 
-const render = (container, template, place) => {
+const render = (container, template, place = 'beforeend') => {
   container.insertAdjacentHTML(place, template);
 };
 
@@ -20,20 +29,55 @@ const navigationContainerElement = headerMainElement.querySelector('.trip-contro
 const filtersContainerElement = headerMainElement.querySelector('.trip-controls__filters');
 const tripEventsElement = siteMainElement.querySelector('.trip-events');
 
-render(navigationContainerElement, createSiteMenuTemplate(), 'beforeend');
-render(headerMainElement, createTripInfoElement(), 'afterbegin');
+render(navigationContainerElement, createSiteMenuTemplate());
+// render(headerMainElement, createTripInfoElement(), 'afterbegin');
 
-const tripInfoElement = headerMainElement.querySelector('.trip-info');
-render(tripInfoElement, createCostTripElement(), 'beforeend');
+// const tripInfoElement = headerMainElement.querySelector('.trip-info');
+// render(tripInfoElement, createCostTripElement());
 
-render(filtersContainerElement, createTripFiltersElement(), 'beforeend');
-render(tripEventsElement, createTripSortElement(), 'beforeend');
-render(tripEventsElement, createEventsListElement(), 'beforeend');
+render(filtersContainerElement, createTripFiltersElement());
+render(tripEventsElement, createTripSortElement());
+render(tripEventsElement, createEventsListElement());
 
 const eventsListElement = tripEventsElement.querySelector('.trip-events__list');
-render(eventsListElement, createEditFormElement(), 'beforeend');
-render(eventsListElement, createAddPointElement(), 'beforeend');
 
-for (let i = 0; i < POINT_COUNT; i++) {
-  render(eventsListElement, createPointElement(), 'beforeend');
-}
+const onClickSortPoints = (sort) => {
+  if (sort === sortTypes.PRICE) {
+    points.sort((a,b) => (a.basePrice + totalSumOffers(a.offers)) > (b.basePrice + totalSumOffers(b.offers)) ? 1 : -1).reverse();
+  }
+  if (sort === sortTypes.DAY) points.sort((a,b) => a.dateFrom > b.dateFrom ? 1 : -1);
+  if (sort === sortTypes.DURATION) {
+    points.sort((a,b) => {
+      const aTimeFrom = dayjs(a.dateFrom);
+      const aTimeTo = dayjs(a.dateTo);
+      const bTimeFrom = dayjs(b.dateFrom);
+      const bTimeTo = dayjs(b.dateTo);
+
+      a = aTimeTo.diff(aTimeFrom, 's');
+      b = bTimeTo.diff(bTimeFrom, 's');
+      return a - b;
+    }).reverse();
+  }
+  renderingPoints();
+};
+
+const renderingPoints = () => {
+  eventsListElement.innerHTML = '';
+  render(eventsListElement, createAddPointElement(points[0]));
+  for (let i = 1; i < POINT_COUNT; i++) {
+    render(eventsListElement, createPointElement(points[i]));
+  }
+};
+
+renderingPoints();
+
+const sortPrice = document.querySelector('.trip-sort__item--price');
+const sortInputPrice = sortPrice.querySelector('.trip-sort__input');
+const sortDay = document.querySelector('.trip-sort__item--day');
+const sortInputDay = sortDay.querySelector('.trip-sort__input');
+const sortTime = document.querySelector('.trip-sort__item--time');
+const sortInputTime = sortTime.querySelector('.trip-sort__input');
+
+sortInputPrice.addEventListener('change', () => onClickSortPoints('price'));
+sortInputDay.addEventListener('change', () => onClickSortPoints('day'));
+sortInputTime.addEventListener('change', () => onClickSortPoints('duration'));
