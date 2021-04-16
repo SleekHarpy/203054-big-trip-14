@@ -1,4 +1,5 @@
-const generateOffersElement = (offers, checkedOffers) => {
+const generateOffersElement = (offers) => {
+
   if (offers.length !== 0) {
     return `
       <section class="event__details">
@@ -13,7 +14,7 @@ const generateOffersElement = (offers, checkedOffers) => {
                 id="event-offer-luggage-${item.price}"
                 type="checkbox"
                 name="event-offer-luggage"
-                ${checkedOffers.find((itemChecked) => itemChecked === item) ? 'checked' : ''}
+                ${item.checked ? 'checked' : ''}
               >
               <label class="event__offer-label" for="event-offer-luggage-${item.price}">
                 <span class="event__offer-title">${item.title}</span>

@@ -2,18 +2,20 @@ import generateOffersElement from './offers-list';
 import generationDestination from './destination';
 import { CITIES, TYPES } from '../mock/point';
 import dayjs from 'dayjs';
-import { offers } from '../mock/offers';
 import { createElement } from '../utils';
 
 const generateCityOptions = CITIES.map((city) => `
   <option value="${city}"></option>
 `).join('');
 
-const createAddPointElement = (point) => {
-  const { destination, type } = point;
+const createPointFormElement = (point) => {
+  const { destination, dateFrom, dateTo, basePrice, offers } = point;
   const checkedType = point.type;
-  const currentTime = dayjs().format('DD/MM/YY HH:mm');
-  const currentTypeOffers = offers.find((item) => item.type === type).offers;
+  // const currentTime = dayjs().format('DD/MM/YY HH:mm');
+
+  const formatDate = (date) => {
+    return dayjs(date).format('DD/MM/YY HH:mm');
+  };
 
   const typeElements = TYPES.map((item) => `
     <div class="event__type-item">
@@ -47,18 +49,18 @@ const createAddPointElement = (point) => {
             <label class="event__label  event__type-output" for="event-destination-1">
               ${checkedType}
             </label>
-            <input class="event__input  event__input--destination" id="event-destination-1" type="${checkedType.toLowerCase()}" name="event-destination" value="${destination.name}" list="destination-list-1">
-            <datalist id="destination-list-1"
+            <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination.name}" list="destination-list-1">
+            <datalist id="destination-list-1">
               ${generateCityOptions}
             </datalist>
           </div>
 
           <div class="event__field-group  event__field-group--time">
             <label class="visually-hidden" for="event-start-time-1">From</label>
-            <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${currentTime}">
+            <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${formatDate(dateFrom)}">
             &mdash;
             <label class="visually-hidden" for="event-end-time-1">To</label>
-            <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${currentTime}">
+            <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${formatDate(dateTo)}">
           </div>
 
           <div class="event__field-group  event__field-group--price">
@@ -66,30 +68,34 @@ const createAddPointElement = (point) => {
               <span class="visually-hidden">Price</span>
               &euro;
             </label>
-            <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="">
+            <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${basePrice}">
           </div>
 
           <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-          <button class="event__reset-btn" type="reset">Cancel</button>
+          <button class="event__reset-btn" type="reset">Delete</button>
+          <button class="event__rollup-btn" type="button">
+            <span class="visually-hidden">Open event</span>
+          </button>
         </header>
 
-          ${generateOffersElement(currentTypeOffers, point.offers)}
+          ${generateOffersElement(offers)}
 
           ${generationDestination(point)}
 
         </section>
       </form>
-    </li>`);
+    </li>`
+  );
 };
 
-export default class AddPoint {
+export default class EditPoint {
   constructor(point) {
     this._point = point;
     this._element = null;
   }
 
   getTemplate() {
-    return createAddPointElement(this._point);
+    return createPointFormElement(this._point);
   }
 
   getElement() {

@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
-import { calcTimeDuration, sumPricePoint } from '../utils';
+import { calcTimeDuration, sumPricePoint, createElement } from '../utils';
 
-export const createPointElement = (point) => {
+const createPointElement = (point) => {
   const {dateFrom, dateTo, type, destination, isFavorite} = point;
   const date = dayjs(dateFrom).format('MMM D');
   const timeFrom = dayjs(dateFrom);
@@ -10,21 +10,21 @@ export const createPointElement = (point) => {
   const durationTemplate = calcTimeDuration(timeFrom, timeTo);
 
   const generateOffersElement = () => {
-    return point.offers.map((item) => `
+    return point.offers.map((item) => item.checked ? `
       <li class="event__offer">
         <span class="event__offer-title">${item.title}</span>
         &plus;&euro;&nbsp;
         <span class="event__offer-price">${item.price}</span>
       </li>
-    `).join('');
+    ` : '').join('');
   };
 
   const favoriteClassName = isFavorite
     ? 'event__favorite-btn event__favorite-btn--active'
     : 'event__favorite-btn';
 
-  return `
-    <li class="trip-events__item">
+  return (
+    `<li class="trip-events__item">
       <div class="event">
         <time class="event__date" datetime="2019-03-18">${date}</time>
         <div class="event__type">
@@ -56,6 +56,29 @@ export const createPointElement = (point) => {
           <span class="visually-hidden">Open event</span>
         </button>
       </div>
-    </li>
-  `;
+    </li>`
+  );
 };
+
+export default class Point {
+  constructor(point) {
+    this._point = point;
+    this._element = null;
+  }
+
+  getTemplate() {
+    return createPointElement(this._point);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}
