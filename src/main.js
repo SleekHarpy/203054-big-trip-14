@@ -9,7 +9,7 @@ import EditPointView from './view/edit-point';
 import PointView from './view/point';
 import { generatePoint } from './mock/point';
 import dayjs from 'dayjs';
-import { render, totalSumOffers, SortType, sortByDate } from './utils';
+import {render, totalSumOffers, SortType, sortByDateFrom, RenderPosition} from './utils';
 
 const POINT_COUNT = 6;
 const points = new Array(POINT_COUNT).fill().map((item, index) => generatePoint(index));
@@ -25,7 +25,7 @@ render(navigationContainerElement, new SiteMenuView().getElement());
 const eventsListComponent = new EventsListView();
 
 render(filtersContainerElement, new TripFilterView().getElement());
-render(headerMainElement, new TripInfoView(points).getElement(), 'afterbegin');
+render(headerMainElement, new TripInfoView(points).getElement(), RenderPosition.AFTERBEGIN);
 const tripInfoElement = headerMainElement.querySelector('.trip-info');
 render(tripInfoElement, new TripCostView(points).getElement());
 render(tripEventsElement, new TripSortView().getElement());
@@ -37,18 +37,20 @@ const sortInputDay = sortDay.querySelector('.trip-sort__input');
 const sortTime = document.querySelector('.trip-sort__item--time');
 const sortInputTime = sortTime.querySelector('.trip-sort__input');
 
-sortInputPrice.addEventListener('change', () => onClickSortPoints(SortType.PRICE));
-sortInputDay.addEventListener('change', () => onClickSortPoints(SortType.DAY));
-sortInputTime.addEventListener('change', () => onClickSortPoints(SortType.DURATION));
+sortInputPrice.addEventListener('change', () => sortPoints(SortType.PRICE));
+sortInputDay.addEventListener('change', () => sortPoints(SortType.DAY));
+sortInputTime.addEventListener('change', () => sortPoints(SortType.DURATION));
 
 
 render(tripEventsElement, eventsListComponent.getElement());
 
-const onClickSortPoints = (sort) => {
+const sortPoints = (sort) => {
   if (sort === SortType.PRICE) {
     points.sort((a,b) => (a.basePrice + totalSumOffers(a.offers)) > (b.basePrice + totalSumOffers(b.offers)) ? 1 : -1).reverse();
   }
-  if (sort === SortType.DAY) sortByDate(points);
+  if (sort === SortType.DAY) {
+    sortByDateFrom(points);
+  }
   if (sort === SortType.DURATION) {
     points.sort((a,b) => {
       const aTimeFrom = dayjs(a.dateFrom);

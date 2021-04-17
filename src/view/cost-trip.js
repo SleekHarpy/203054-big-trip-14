@@ -1,11 +1,11 @@
 import { createElement } from '../utils';
 
 const createCostTripElement = (points) => {
-  const countTotalPrice = (array) => {
-    return array.map((item) => item.offers.reduce((total, amount) => total + amount.price, 0) + item.basePrice).reduce((total, amount) => total + amount, 0);
+  const countTotalPrice = () => {
+    return points.map((item) => item.offers.reduce((total, amount) => total + amount.price, 0) + item.basePrice).reduce((total, amount) => total + amount, 0);
   };
 
-  const totalPrice = countTotalPrice(points);
+  const totalPrice = countTotalPrice();
 
   return (
     `<p class="trip-info__cost">
@@ -14,7 +14,7 @@ const createCostTripElement = (points) => {
   );
 };
 
-export default class tripCost {
+export default class TripCost {
   constructor(points) {
     this._points = points;
     this._element = null;

@@ -78,7 +78,7 @@ const createPointFormElement = (point) => {
           </button>
         </header>
 
-          ${generateOffersElement(offers)}
+          ${generateOffersElement(point)}
 
           ${generationDestination(point)}
 

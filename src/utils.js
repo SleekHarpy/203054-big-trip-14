@@ -75,10 +75,18 @@ export const createElement = (template) => {
   return newElement.firstChild;
 };
 
-export const sortByDate = (points) => {
+export const sortByDateFrom = (points) => {
   return points.sort((a,b) => a.dateFrom > b.dateFrom ? 1 : -1);
+};
+
+export const sortByDateTo = (points) => {
+  return points.sort((a,b) => a.dateTo > b.dateTo ? 1 : -1);
 };
 
 export const getLastIndex = (array) => {
   return array.length - 1;
+};
+
+export const findOffersFoType = (offers, type) => {
+  return offers.find((item) => item.type === type).offers;
 };

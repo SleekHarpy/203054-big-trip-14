@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import { getRandomIndex, getRandomInteger } from '../utils';
+import {findOffersFoType, getLastIndex, getRandomIndex, getRandomInteger} from '../utils';
 
 const DAY_GAP = 2;
 const hoursGap = getRandomInteger(0, 24);
@@ -15,7 +15,6 @@ const generateOffers = () => {
       {
         title: TEXT_LOREM.slice(0, getRandomInteger(5, 25)),
         price: getRandomInteger(10, 1000),
-        checked: Boolean(getRandomInteger(0, 1)),
       },
     );
   }
@@ -23,7 +22,7 @@ const generateOffers = () => {
   return offers;
 };
 
-const offers = TYPES.map((item) => {
+export const offers = TYPES.map((item) => {
   return {
     type: item,
     offers: generateOffers(),
@@ -69,7 +68,7 @@ const generateDestination = (cityI) => {
 
 export const generatePoint = (cityI) => {
   const randomType = generateTypePoint();
-  const typeOffers = offers.find((item) => item.type === randomType).offers;
+  const typeOffers = findOffersFoType(offers, randomType);
   const randomDateFrom = generateDate();
   const randomDateTo = dayjs(randomDateFrom).add(getRandomInteger(0, hoursGap), 'hour').add(getRandomInteger(0, minutesGap), 'minute');
 
@@ -80,6 +79,6 @@ export const generatePoint = (cityI) => {
     dateTo: randomDateTo,
     isFavorite: Boolean(getRandomInteger(0, 1)),
     basePrice: getRandomInteger(1, 500),
-    offers: typeOffers,
+    offers: typeOffers.slice(0, getLastIndex(typeOffers)),
   };
 };
