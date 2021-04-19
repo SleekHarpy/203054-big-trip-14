@@ -10,6 +10,7 @@ import PointView from './view/point';
 import { generatePoint } from './mock/point';
 import dayjs from 'dayjs';
 import {render, totalSumOffers, SortType, sortByDateFrom, RenderPosition} from './utils';
+import NoPointView from './view/no-point';
 
 const POINT_COUNT = 6;
 const points = new Array(POINT_COUNT).fill().map((item, index) => generatePoint(index));
@@ -25,22 +26,26 @@ render(navigationContainerElement, new SiteMenuView().getElement());
 const eventsListComponent = new EventsListView();
 
 render(filtersContainerElement, new TripFilterView().getElement());
-render(headerMainElement, new TripInfoView(points).getElement(), RenderPosition.AFTERBEGIN);
-const tripInfoElement = headerMainElement.querySelector('.trip-info');
-render(tripInfoElement, new TripCostView(points).getElement());
-render(tripEventsElement, new TripSortView().getElement());
 
-const sortPrice = document.querySelector('.trip-sort__item--price');
-const sortInputPrice = sortPrice.querySelector('.trip-sort__input');
-const sortDay = document.querySelector('.trip-sort__item--day');
-const sortInputDay = sortDay.querySelector('.trip-sort__input');
-const sortTime = document.querySelector('.trip-sort__item--time');
-const sortInputTime = sortTime.querySelector('.trip-sort__input');
+if (points.length === 0) {
+  render(tripEventsElement, new NoPointView().getElement());
+} else {
+  render(headerMainElement, new TripInfoView(points).getElement(), RenderPosition.AFTERBEGIN);
+  const tripInfoElement = headerMainElement.querySelector('.trip-info');
+  render(tripInfoElement, new TripCostView(points).getElement());
+  render(tripEventsElement, new TripSortView().getElement());
 
-sortInputPrice.addEventListener('change', () => sortPoints(SortType.PRICE));
-sortInputDay.addEventListener('change', () => sortPoints(SortType.DAY));
-sortInputTime.addEventListener('change', () => sortPoints(SortType.DURATION));
+  const sortPrice = document.querySelector('.trip-sort__item--price');
+  const sortInputPrice = sortPrice.querySelector('.trip-sort__input');
+  const sortDay = document.querySelector('.trip-sort__item--day');
+  const sortInputDay = sortDay.querySelector('.trip-sort__input');
+  const sortTime = document.querySelector('.trip-sort__item--time');
+  const sortInputTime = sortTime.querySelector('.trip-sort__input');
 
+  sortInputPrice.addEventListener('change', () => sortPoints(SortType.PRICE));
+  sortInputDay.addEventListener('change', () => sortPoints(SortType.DAY));
+  sortInputTime.addEventListener('change', () => sortPoints(SortType.DURATION));
+}
 
 render(tripEventsElement, eventsListComponent.getElement());
 
@@ -79,13 +84,24 @@ const renderPoint = (pointListElement, point) => {
     pointListElement.replaceChild(pointComponent.getElement(), pointEditComponent.getElement());
   };
 
+  const onEscKeyDown = (evt) => {
+    if (evt.key === 'Escape' || evt.key === 'Esc') {
+      evt.preventDefault();
+      replaceFormToPoint();
+      document.removeEventListener('keydown', onEscKeyDown);
+    }
+  };
+
   pointComponent.getElement().querySelector('.event__rollup-btn').addEventListener('click', () => {
     replacePointToForm();
+    document.addEventListener('keydown', onEscKeyDown);
+    pointEditComponent.getElement().querySelector('.event__rollup-btn').addEventListener('click', replaceFormToPoint);
   });
 
   pointEditComponent.getElement().querySelector('form').addEventListener('submit', (evt) => {
     evt.preventDefault();
     replaceFormToPoint();
+    document.removeEventListener('keydown', onEscKeyDown);
   });
 
   render(pointListElement, pointComponent.getElement());

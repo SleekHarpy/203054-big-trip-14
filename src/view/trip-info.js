@@ -8,11 +8,9 @@ const createTripInfoElement = (points) => {
     const firstCity = points[0].destination.name;
     const lastCity = points[getLastIndex(points)].destination.name;
 
-    if (points.length > MAX_CITY) {
-      return `${firstCity} &mdash;...&mdash; ${lastCity}`;
-    } else if (points.length <= MAX_CITY) {
-      return `${points.map((item) => item.destination.name).join(' &mdash; ')}`;
-    }
+    return points.length <= MAX_CITY
+      ? `${points.map((item) => item.destination.name).join(' &mdash; ')}`
+      : `${firstCity} &mdash;...&mdash; ${lastCity}`;
   };
 
   const getFirstDate = () => {
@@ -33,11 +31,10 @@ const createTripInfoElement = (points) => {
     const firstDateMonth = firstDate.format('YYMM');
     const lastDateMonth = lastDate.format('YYMM');
 
-    if (firstDateMonth === lastDateMonth) {
-      return `${firstDate.format('MMM D')}&nbsp;&mdash;&nbsp;${lastDate.format('D')}`;
-    } else {
-      return `${firstDate.format('MMM D')}&nbsp;&mdash;&nbsp;${lastDate.format('MMM D')}`;
-    }
+
+    return firstDateMonth === lastDateMonth
+      ? `${firstDate.format('MMM D')}&nbsp;&mdash;&nbsp;${lastDate.format('D')}`
+      : `${firstDate.format('MMM D')}&nbsp;&mdash;&nbsp;${lastDate.format('MMM D')}`;
   };
 
   return (
