@@ -3,7 +3,7 @@ import generationDestination from './destination';
 import { CITIES, TYPES } from '../mock/point';
 import dayjs from 'dayjs';
 import { offers } from '../mock/offers';
-import { createElement } from '../utils';
+import AbstractView from './abstract';
 
 const generateCityOptions = CITIES.map((city) => `
   <option value="${city}"></option>
@@ -82,25 +82,13 @@ const createAddPointElement = (point) => {
     </li>`);
 };
 
-export default class AddPoint {
+export default class AddPoint extends AbstractView {
   constructor(point) {
+    super();
     this._point = point;
-    this._element = null;
   }
 
   getTemplate() {
     return createAddPointElement(this._point);
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 }

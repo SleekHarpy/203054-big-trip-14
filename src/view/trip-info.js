@@ -1,5 +1,6 @@
 import dayjs from 'dayjs';
-import {createElement, getLastIndex, sortByDateFrom, sortByDateTo} from '../utils';
+import {getLastIndex, sortByDateFrom, sortByDateTo} from '../utils/point';
+import AbstractView from './abstract';
 
 const MAX_CITY = 3;
 
@@ -31,7 +32,6 @@ const createTripInfoElement = (points) => {
     const firstDateMonth = firstDate.format('YYMM');
     const lastDateMonth = lastDate.format('YYMM');
 
-
     return firstDateMonth === lastDateMonth
       ? `${firstDate.format('MMM D')}&nbsp;&mdash;&nbsp;${lastDate.format('D')}`
       : `${firstDate.format('MMM D')}&nbsp;&mdash;&nbsp;${lastDate.format('MMM D')}`;
@@ -48,25 +48,13 @@ const createTripInfoElement = (points) => {
   );
 };
 
-export default class TripInfo {
+export default class TripInfo extends AbstractView {
   constructor(points) {
+    super();
     this._points = points;
-    this._element = null;
   }
 
   getTemplate() {
     return createTripInfoElement(this._points);
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 }

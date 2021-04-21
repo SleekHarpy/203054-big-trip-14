@@ -1,5 +1,6 @@
 import dayjs from 'dayjs';
-import {findOffersFoType, getLastIndex, getRandomIndex, getRandomInteger} from '../utils';
+import {findOffersFoType, getLastIndex} from '../utils/point';
+import {getRandomIndex, getRandomInteger} from '../utils/common';
 
 const DAY_GAP = 2;
 const hoursGap = getRandomInteger(0, 24);

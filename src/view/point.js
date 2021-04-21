@@ -1,5 +1,6 @@
 import dayjs from 'dayjs';
-import { calcTimeDuration, sumPricePoint, createElement } from '../utils';
+import { calcTimeDuration, sumPricePoint } from '../utils/point';
+import AbstractView from './abstract';
 
 const createPointElement = (point) => {
   const {dateFrom, dateTo, type, destination, isFavorite} = point;
@@ -60,25 +61,24 @@ const createPointElement = (point) => {
   );
 };
 
-export default class Point {
+export default class Point extends AbstractView{
   constructor(point) {
+    super();
     this._point = point;
-    this._element = null;
+
+    this._pointOpenHandler = this._pointOpenHandler.bind(this);
   }
 
   getTemplate() {
     return createPointElement(this._point);
   }
 
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
+  _pointOpenHandler() {
+    this._callback.pointOpen();
   }
 
-  removeElement() {
-    this._element = null;
+  setPointOpenHandler(callback) {
+    this._callback.pointOpen = callback;
+    this.getElement().querySelector('.event__rollup-btn').addEventListener('click', this._pointOpenHandler);
   }
 }

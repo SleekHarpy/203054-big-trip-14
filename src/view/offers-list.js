@@ -1,5 +1,5 @@
 import {offers} from '../mock/point';
-import {findOffersFoType} from '../utils';
+import {findOffersFoType} from '../utils/point';
 
 const generateOffersElement = (point) => {
   const typeOffers = findOffersFoType(offers, point.type);

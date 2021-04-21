@@ -2,14 +2,14 @@ import generateOffersElement from './offers-list';
 import generationDestination from './destination';
 import { CITIES, TYPES } from '../mock/point';
 import dayjs from 'dayjs';
-import { createElement } from '../utils';
+import AbstractView from './abstract';
 
 const generateCityOptions = CITIES.map((city) => `
   <option value="${city}"></option>
 `).join('');
 
 const createPointFormElement = (point) => {
-  const { destination, dateFrom, dateTo, basePrice, offers } = point;
+  const { destination, dateFrom, dateTo, basePrice } = point;
   const checkedType = point.type;
   // const currentTime = dayjs().format('DD/MM/YY HH:mm');
 
@@ -88,25 +88,35 @@ const createPointFormElement = (point) => {
   );
 };
 
-export default class EditPoint {
+export default class EditPoint extends AbstractView{
   constructor(point) {
+    super();
     this._point = point;
-    this._element = null;
+
+    this._formSubmitHandler = this._formSubmitHandler.bind(this);
+    this._formCloseHandler = this._formCloseHandler.bind(this);
   }
 
   getTemplate() {
     return createPointFormElement(this._point);
   }
 
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
+  _formSubmitHandler(evt) {
+    evt.preventDefault();
+    this._callback.formSubmit();
   }
 
-  removeElement() {
-    this._element = null;
+  _formCloseHandler() {
+    this._callback.formClose();
+  }
+
+  setFormSubmitHandler(callback) {
+    this._callback.formSubmit = callback;
+    this.getElement().querySelector('form').addEventListener('submit', this._formSubmitHandler);
+  }
+
+  setPointCloseHandler(callback) {
+    this._callback.formClose = callback;
+    this.getElement().querySelector('.event__rollup-btn').addEventListener('click', this._formCloseHandler);
   }
 }
