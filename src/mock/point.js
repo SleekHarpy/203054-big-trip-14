@@ -1,6 +1,7 @@
 import dayjs from 'dayjs';
 import {findOffersFoType, getLastIndex} from '../utils/point';
 import {getRandomIndex, getRandomInteger} from '../utils/common';
+import {nanoid} from 'nanoid';
 
 const DAY_GAP = 2;
 const hoursGap = getRandomInteger(0, 24);
@@ -74,6 +75,7 @@ export const generatePoint = (cityI) => {
   const randomDateTo = dayjs(randomDateFrom).add(getRandomInteger(0, hoursGap), 'hour').add(getRandomInteger(0, minutesGap), 'minute');
 
   return {
+    id: nanoid(),
     type: randomType,
     destination: generateDestination(cityI),
     dateFrom: randomDateFrom,
