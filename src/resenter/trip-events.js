@@ -2,7 +2,7 @@ import TripEventsView from '../view/trip-events';
 import TripSortView from '../view/trip-sort';
 import NoPointView from '../view/no-point';
 import EventsListView from '../view/events-list';
-import { render} from '../utils/render';
+import {render, RenderPosition} from '../utils/render';
 import PointPresenter from './point';
 import {updateItem} from '../utils/common';
 
@@ -23,7 +23,7 @@ export default class TripEvents {
   init(eventPoints) {
     this._eventPoints = eventPoints;
     render(this._tripEventsContainer, this._tripEventsComponent);
-    render(this._tripEventsContainer, this._eventsListComponent);
+    render(this._tripEventsComponent, this._eventsListComponent);
 
     this._renderTripEvents();
   }
@@ -40,7 +40,7 @@ export default class TripEvents {
   }
 
   _renderSort() {
-    render(this._tripEventsComponent, this._tripSortComponent);
+    render(this._tripEventsComponent, this._tripSortComponent, RenderPosition.AFTERBEGIN);
   }
 
   _renderPoint(point) {
