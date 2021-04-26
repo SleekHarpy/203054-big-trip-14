@@ -45,6 +45,23 @@ export const sortByDateFrom = (points) => {
   return points.sort((a,b) => a.dateFrom > b.dateFrom ? 1 : -1);
 };
 
+export const sortPrice = (points) => {
+  return points.sort((a,b) => (a.basePrice + totalSumOffers(a.offers)) > (b.basePrice + totalSumOffers(b.offers)) ? 1 : -1).reverse();
+};
+
+export const sortDuration = (points) => {
+  return points.sort((a,b) => {
+    const aTimeFrom = dayjs(a.dateFrom);
+    const aTimeTo = dayjs(a.dateTo);
+    const bTimeFrom = dayjs(b.dateFrom);
+    const bTimeTo = dayjs(b.dateTo);
+
+    a = aTimeTo.diff(aTimeFrom, 's');
+    b = bTimeTo.diff(bTimeFrom, 's');
+    return a - b;
+  }).reverse();
+};
+
 export const sortByDateTo = (points) => {
   return points.sort((a,b) => a.dateTo > b.dateTo ? 1 : -1);
 };
