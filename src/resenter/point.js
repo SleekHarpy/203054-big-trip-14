@@ -58,6 +58,7 @@ export default class Point {
   destroy() {
     remove(this._pointComponent);
     remove(this._editPointComponent);
+    document.removeEventListener('keydown', this._escKeyDownHandler);
   }
 
   resetView() {
