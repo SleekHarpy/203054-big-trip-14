@@ -22,7 +22,9 @@ export const totalSumOffers = (offers) => {
 
 export const sumPricePoint = (point) => {
   if (point.offers.length !== 0 ) {
-    return point.offers.reduce((total, amount) => total + amount.price, 0) + point.basePrice;
+    return point.offers
+      .filter((item) => item.isChecked)
+      .reduce((total, amount) => total + amount.price, 0) + point.basePrice;
   }
 
   return point.basePrice;
@@ -71,5 +73,5 @@ export const getLastIndex = (array) => {
 };
 
 export const findOffersFoType = (offers, type) => {
-  return offers.find((item) => item.type === type).offers;
+  return offers.find((item) => item.type.toLowerCase() === type.toLowerCase()).offers;
 };

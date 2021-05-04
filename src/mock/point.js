@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import {findOffersFoType, getLastIndex} from '../utils/point';
+import {findOffersFoType} from '../utils/point';
 import {getRandomIndex, getRandomInteger} from '../utils/common';
 import {nanoid} from 'nanoid';
 
@@ -35,7 +35,7 @@ const generateTypePoint = () => {
   return TYPES[getRandomIndex(TYPES)];
 };
 
-const generateDescription = () => {
+export const generateDescription = () => {
   const sentences = TEXT_LOREM.replace(/([.?!])\s*(?=[A-Z])/g, '$1|').split('|');
   const randomIndex = getRandomInteger(0, sentences.length - 1);
 
@@ -46,7 +46,7 @@ const generateDate = () => {
   return dayjs().add(getRandomInteger(-DAY_GAP, DAY_GAP), 'month').add(getRandomInteger(-DAY_GAP, DAY_GAP), 'day').add(hoursGap, 'hour').add(minutesGap, 'minute').format('YYYY-MM-DDTHH:mm');
 };
 
-const generatePictures = () => {
+export const generatePictures = () => {
   const pictures = [];
   for (let i = 0; i < getRandomInteger(1, 6); i++) {
     pictures.push(
@@ -82,6 +82,8 @@ export const generatePoint = (cityI) => {
     dateTo: randomDateTo,
     isFavorite: Boolean(getRandomInteger(0, 1)),
     basePrice: getRandomInteger(1, 500),
-    offers: typeOffers.slice(0, getLastIndex(typeOffers)),
+    offers: typeOffers.map((item) => {
+      return { ...item, isChecked: Boolean(getRandomInteger(0, 1))};
+    }),
   };
 };

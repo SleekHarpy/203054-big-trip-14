@@ -11,13 +11,13 @@ const createPointElement = (point) => {
   const durationTemplate = calcTimeDuration(timeFrom, timeTo);
 
   const generateOffersElement = () => {
-    return point.offers.map((item) => `
+    return point.offers.map((item) => item.isChecked ? `
       <li class="event__offer">
         <span class="event__offer-title">${item.title}</span>
         &plus;&euro;&nbsp;
         <span class="event__offer-price">${item.price}</span>
       </li>
-    `).join('');
+    `  : '' ).join('');
   };
 
   const favoriteClassName = isFavorite
