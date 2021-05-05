@@ -1,16 +1,17 @@
 import generateOffersElement from './offers-list';
 import generationDestination from './destination';
-import { CITIES, TYPES } from '../mock/point';
+import {CITIES, generateDescription, generatePictures, offers, TYPES} from '../mock/point';
 import dayjs from 'dayjs';
-import AbstractView from './abstract';
+import {findOffersFoType} from '../utils/point';
+import SmartView from './smart';
 
 const generateCityOptions = CITIES.map((city) => `
   <option value="${city}"></option>
 `).join('');
 
-const createPointFormElement = (point) => {
-  const { destination, dateFrom, dateTo, basePrice } = point;
-  const checkedType = point.type;
+const createPointFormElement = (data) => {
+  const { destination, dateFrom, dateTo, basePrice } = data;
+  const checkedType = data.type;
   // const currentTime = dayjs().format('DD/MM/YY HH:mm');
 
   const formatDate = (date) => {
@@ -19,7 +20,7 @@ const createPointFormElement = (point) => {
 
   const typeElements = TYPES.map((item) => `
     <div class="event__type-item">
-      <input id="event-type-${item.toLowerCase()}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${item.toLowerCase()}" ${item === checkedType ? 'checked' : ''}>
+      <input id="event-type-${item.toLowerCase()}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${item.toLowerCase()}" ${item === checkedType || item.toLowerCase() === checkedType ? 'checked' : ''}>
       <label class="event__type-label  event__type-label--${item.toLowerCase()}" for="event-type-${item.toLowerCase()}-1">${item}</label>
     </div>
   `).join('');
@@ -78,9 +79,9 @@ const createPointFormElement = (point) => {
           </button>
         </header>
 
-          ${generateOffersElement(point)}
+          ${generateOffersElement(data)}
 
-          ${generationDestination(point)}
+          ${generationDestination(data)}
 
         </section>
       </form>
@@ -88,26 +89,83 @@ const createPointFormElement = (point) => {
   );
 };
 
-export default class EditPoint extends AbstractView{
+export default class EditPoint extends SmartView{
   constructor(point) {
     super();
-    this._point = point;
+    this._data = EditPoint.parsePointToData(point);
 
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
     this._formCloseHandler = this._formCloseHandler.bind(this);
+    this._pointTypeToggleHandler = this._pointTypeToggleHandler.bind(this);
+    this._pointCityToggleHandler = this._pointCityToggleHandler.bind(this);
+    this._pointOfferToggleHandler = this._pointOfferToggleHandler.bind(this);
+
+    this._setInnerHandlers();
+  }
+
+  reset(point) {
+    this.updateData(
+      EditPoint.parsePointToData(point),
+    );
   }
 
   getTemplate() {
-    return createPointFormElement(this._point);
+    return createPointFormElement(this._data);
+  }
+
+  _pointTypeToggleHandler(evt) {
+    evt.preventDefault();
+    this.updateData({
+      type: evt.target.value,
+      offers: findOffersFoType(offers, evt.target.value),
+    });
+  }
+
+  _pointCityToggleHandler(evt) {
+    if (CITIES.includes(evt.target.value)) {
+      this.updateData({
+        destination: {
+          description: generateDescription(),
+          name: evt.target.value,
+          photos: generatePictures(),
+        },
+      });
+    }
+  }
+
+  _pointOfferToggleHandler(evt) {
+    this.updateData({
+      offers: this._data.offers.map((item) => {
+        if (item.title === evt.target.dataset.offerTitle) {
+          item.isChecked = !item.isChecked;
+        }
+        return item;
+      }),
+    });
   }
 
   _formSubmitHandler(evt) {
     evt.preventDefault();
-    this._callback.formSubmit(this._point);
+    this._callback.formSubmit(EditPoint.parseDataToPoint(this._data));
   }
 
   _formCloseHandler() {
     this._callback.formClose();
+  }
+
+  _setInnerHandlers() {
+    this.getElement()
+      .querySelector('.event__type-group')
+      .addEventListener('change', this._pointTypeToggleHandler);
+    this.getElement()
+      .querySelector('.event__input--destination')
+      .addEventListener('change', this._pointCityToggleHandler);
+
+    if (this.getElement().querySelector('.event__available-offers') !== null) {
+      this.getElement()
+        .querySelector('.event__available-offers')
+        .addEventListener('change', this._pointOfferToggleHandler);
+    }
   }
 
   setFormSubmitHandler(callback) {
@@ -118,5 +176,18 @@ export default class EditPoint extends AbstractView{
   setFormCloseHandler(callback) {
     this._callback.formClose = callback;
     this.getElement().querySelector('.event__rollup-btn').addEventListener('click', this._formCloseHandler);
+  }
+
+  static parsePointToData(point) {
+    return Object.assign(
+      {},
+      point,
+    );
+  }
+
+  static parseDataToPoint(data) {
+    data = Object.assign({}, data);
+
+    return data;
   }
 }
