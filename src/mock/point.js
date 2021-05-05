@@ -43,7 +43,7 @@ export const generateDescription = () => {
 };
 
 const generateDate = () => {
-  return dayjs().add(getRandomInteger(-DAY_GAP, DAY_GAP), 'month').add(getRandomInteger(-DAY_GAP, DAY_GAP), 'day').add(hoursGap, 'hour').add(minutesGap, 'minute').format('YYYY-MM-DDTHH:mm');
+  return dayjs().add(getRandomInteger(-DAY_GAP, DAY_GAP), 'month').add(getRandomInteger(-DAY_GAP, DAY_GAP), 'day').add(getRandomInteger(0, 24), 'hour').add(getRandomInteger(0, 60), 'minute').toISOString();
 };
 
 export const generatePictures = () => {
@@ -60,24 +60,28 @@ export const generatePictures = () => {
   return pictures;
 };
 
-const generateDestination = (cityI) => {
-  return {
-    description: generateDescription(),
-    name: CITIES[cityI],
-    photos: generatePictures(),
-  };
+export const generateDestinations = () => {
+  return CITIES.map((city) => {
+    return {
+      description: generateDescription(),
+      name: city,
+      photos: generatePictures(),
+    };
+  });
 };
+
+export const destinations = generateDestinations();
 
 export const generatePoint = (cityI) => {
   const randomType = generateTypePoint();
   const typeOffers = findOffersFoType(offers, randomType);
   const randomDateFrom = generateDate();
-  const randomDateTo = dayjs(randomDateFrom).add(getRandomInteger(0, hoursGap), 'hour').add(getRandomInteger(0, minutesGap), 'minute');
+  const randomDateTo = dayjs(randomDateFrom).add(getRandomInteger(0, hoursGap), 'hour').add(getRandomInteger(0, minutesGap), 'minute').toISOString();
 
   return {
     id: nanoid(),
     type: randomType,
-    destination: generateDestination(cityI),
+    destination: destinations[cityI],
     dateFrom: randomDateFrom,
     dateTo: randomDateTo,
     isFavorite: Boolean(getRandomInteger(0, 1)),

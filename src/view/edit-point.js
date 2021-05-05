@@ -1,9 +1,12 @@
 import generateOffersElement from './offers-list';
 import generationDestination from './destination';
-import {CITIES, generateDescription, generatePictures, offers, TYPES} from '../mock/point';
+import {CITIES, destinations, offers, TYPES} from '../mock/point';
 import dayjs from 'dayjs';
 import {findOffersFoType} from '../utils/point';
 import SmartView from './smart';
+import flatpickr from 'flatpickr';
+
+import '../../node_modules/flatpickr/dist/flatpickr.min.css';
 
 const generateCityOptions = CITIES.map((city) => `
   <option value="${city}"></option>
@@ -58,10 +61,10 @@ const createPointFormElement = (data) => {
 
           <div class="event__field-group  event__field-group--time">
             <label class="visually-hidden" for="event-start-time-1">From</label>
-            <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${formatDate(dateFrom)}">
+            <input class="event__input event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${formatDate(dateFrom)}">
             &mdash;
             <label class="visually-hidden" for="event-end-time-1">To</label>
-            <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${formatDate(dateTo)}">
+            <input class="event__input event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${formatDate(dateTo)}">
           </div>
 
           <div class="event__field-group  event__field-group--price">
@@ -93,14 +96,18 @@ export default class EditPoint extends SmartView{
   constructor(point) {
     super();
     this._data = EditPoint.parsePointToData(point);
+    this._datepicker = null;
 
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
     this._formCloseHandler = this._formCloseHandler.bind(this);
     this._pointTypeToggleHandler = this._pointTypeToggleHandler.bind(this);
     this._pointCityToggleHandler = this._pointCityToggleHandler.bind(this);
     this._pointOfferToggleHandler = this._pointOfferToggleHandler.bind(this);
+    this._dateFromChangeHandler = this._dateFromChangeHandler.bind(this);
+    this._dateToChangeHandler = this._dateToChangeHandler.bind(this);
 
     this._setInnerHandlers();
+    this._setDatepickers();
   }
 
   reset(point) {
@@ -111,6 +118,13 @@ export default class EditPoint extends SmartView{
 
   getTemplate() {
     return createPointFormElement(this._data);
+  }
+
+  restoreHandlers() {
+    this._setInnerHandlers();
+    this._setDatepickers();
+    this.setFormSubmitHandler(this._callback.formSubmit);
+    this.setFormCloseHandler(this._callback.formClose);
   }
 
   _pointTypeToggleHandler(evt) {
@@ -124,11 +138,7 @@ export default class EditPoint extends SmartView{
   _pointCityToggleHandler(evt) {
     if (CITIES.includes(evt.target.value)) {
       this.updateData({
-        destination: {
-          description: generateDescription(),
-          name: evt.target.value,
-          photos: generatePictures(),
-        },
+        destination: destinations.find((item) => item.name === evt.target.value) ,
       });
     }
   }
@@ -151,6 +161,62 @@ export default class EditPoint extends SmartView{
 
   _formCloseHandler() {
     this._callback.formClose();
+  }
+
+  _setDatepickers() {
+    if (this._datepickerFrom) {
+      this._datepickerFrom.destroy();
+      this._datepickerFrom = null;
+    }
+
+    if (this._datepickerTo) {
+      this._datepickerTo.destroy();
+      this._datepickerTo = null;
+    }
+
+    this._datepickerFrom = flatpickr(
+      this.getElement().querySelector('#event-start-time-1'),
+      {
+        enableTime: true,
+        time_24hr: true,
+        dateFormat: 'd/m/y H:i',
+        defaultDate: this._data.dateFrom,
+        onChange: this._dateFromChangeHandler,
+      },
+    );
+
+    this._datepickerTo = flatpickr(
+      this.getElement().querySelector('#event-end-time-1'),
+      {
+        enableTime: true,
+        time_24hr: true,
+        dateFormat: 'd/m/y H:i',
+        minDate: this._data.dateFrom,
+        defaultDate: this._data.dateTo,
+        onChange: this._dateToChangeHandler,
+      },
+    );
+  }
+
+  _dateFromChangeHandler([userDate]) {
+    const userDateISO = dayjs(userDate).toISOString();
+
+    this.updateData({
+      dateFrom: userDateISO,
+      dateTo: userDateISO > this._data.dateTo ? userDateISO : this._data.dateTo,
+    },
+    true,
+    );
+  }
+
+  _dateToChangeHandler([userDate]) {
+    const userDateISO = dayjs(userDate).toISOString();
+
+    this.updateData({
+      dateTo: userDateISO,
+    },
+    true,
+    );
   }
 
   _setInnerHandlers() {
